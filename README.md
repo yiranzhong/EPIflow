@@ -1,7 +1,7 @@
 # EPIflow
 Unsupervised Deep Epipolar Flow for Stationary or Dynamic Scenes
 
-Loss functions has been uploaded.
+Loss functions have been uploaded.
 
 ## Citation
 ```
