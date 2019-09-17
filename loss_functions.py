@@ -1,6 +1,28 @@
 import torch
 from torch.autograd import Variable
 
+def normalize2dpoints(X,Y):    
+    meanX = torch.mean(X,0)
+    meanY = torch.mean(Y,0)
+    newpX = X-meanX
+    newpY = Y-meanY
+    dist  = torch.sqrt(newpX**2 + newpY**2)
+    meandist = torch.mean(dist,0)
+    scale = 1.4142135623730951/meandist
+    
+    newX = scale*(X-meanX)
+    newY = scale*(Y-meanY)
+    T = torch.FloatTensor([[scale, 0, -scale*meanX], [0, scale, -scale*meanY],[0,0,1]]).cuda().double()
+    return newX, newY, T
+
+def random_select_points(x,y,x_,y_,samples=10):
+    idx=torch.randperm(x.shape[0])
+    x=x[idx[:samples],:]
+    y=y[idx[:samples],:]
+    x_=x_[idx[:samples],:]
+    y_=y_[idx[:samples],:]
+    return x,y,x_,y_
+
 def subspace_loss(flow,mask):
     B, _, H, W = flow.size()
     xx = Variable(torch.arange(0, W).view(1,-1).repeat(H,1).cuda())
@@ -51,7 +73,6 @@ def subspace_loss(flow,mask):
 	  temp2 = temp2**2
 	  
 	  loss2 = lambda1 * torch.sum(temp2.view(-1,1),dim=0)
-	  #pdb.set_trace()
 	  loss +=  (loss1 + loss2)
 	else:
 	  loss += 0.0001
